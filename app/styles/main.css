@@ -10277,6 +10277,9 @@ h3 {
   text-align: center;
   color: #26a69a;
 }
+.h1 label {
+  font-size: 20px !important;
+}
 .big-image .pl-thumbnail {
   width: 80px !important;
   height: 75px !important;
@@ -10512,6 +10515,15 @@ h3 {
 .turquoise-panel .portlet {
   border: none !important;
   background: none !important;
+}
+.full-width-button {
+  width: 100%;
+}
+.full-width-button button {
+  width: 100%;
+}
+.without-all-margin {
+  margin: 0px;
 }
 
 .general-font-size {
@@ -11122,6 +11134,9 @@ h3 {
   padding: 0;
   border: none;
 }
+.ctr-mobile ::-webkit-scrollbar {
+  display: none;
+}
 .main-container {
   padding: 0 10px;
 }
@@ -11713,7 +11728,7 @@ h3 {
 .voting-list .flat-panel .pl-listbox > .listbox-body > div {
   border-bottom: none;
 }
-.voting-list .voting-title li:last-child {
+.voting-list .voting-title .title-child {
   width: 80% !important;
 }
 .voting-preview i,
