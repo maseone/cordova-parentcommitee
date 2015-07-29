@@ -30,7 +30,7 @@ InfinniUI.config.maxLengthUrl = 2048;
 InfinniUI.config.cacheMetadata = false; //boolean - enable/disable cache | milliseconds
 InfinniUI.config.serverUrl = 'http://10.222.222.68:9900';
 InfinniUI.config.configId = 'PTA_mobile';
-InfinniUI.config.configName = 'Родительский коммитет';
+InfinniUI.config.configName = 'Регистр беременных';
 /**
  * Набор утилит для работы с BlobData объектами
  **/
@@ -1096,8 +1096,9 @@ var MessageBox = Backbone.View.extend({
             '   </div>' +
             '   <div class="modal-footer">' +
             '       <% _.each( buttons, function(button, i){ %>' +
-            '           <a href="javascript:;" class="btn <%= button.classes %> <%= button.type %>-modal" data-index="<%= i %>"><%= button.name %></a>' +
-            '       <% }); %>' +
+            '           <% if (i==0){%> <a href="javascript:;" tabindex="0" class="btn firstfocuselementinmodal <%= button.classes %> <%= button.type %>-modal" data-index="<%= i %>"><%= button.name %></a>' +
+            '           <% }else{ %> <a href="javascript:;" class="btn <%= button.classes %> <%= button.type %>-modal" data-index="<%= i %>"><%= button.name %></a>'+
+            '       <% }}); %>' +
             '   </div>'
     ),
 
@@ -1122,6 +1123,33 @@ var MessageBox = Backbone.View.extend({
 
         this.$el
             .html($(this.template(this.options)));
+
+
+        //FOCUS IN MODAL WITHOUT FALL
+
+        var self = this;
+        var $container = this.$el.find('.modal-footer');
+
+        this.$el.on('shown.bs.modal', function (e) {
+            $(e.target).find('.firstfocuselementinmodal').focus();
+        });
+
+        $container.append('<div class="lastfocuselementinmodal" tabindex="0">');
+        this.$el.find('.lastfocuselementinmodal').on('focusin', function(){
+            self.$el.find('.firstfocuselementinmodal').focus();
+        });
+        this.$el.on('keydown', function(e){
+            if($(document.activeElement).hasClass('lastfocuselementinmodal') && (e.which || e.keyCode) == 9){
+                e.preventDefault();
+                self.$el.find('.firstfocuselementinmodal').focus();
+            }
+
+            if($(document.activeElement).hasClass('firstfocuselementinmodal') && (e.which || e.keyCode) == 9 && e.shiftKey){
+                e.preventDefault();
+                self.$el.find('.lastfocuselementinmodal').focus();
+            }
+        });
+        //
 
         $parent
             .append(this.$el);
@@ -1249,6 +1277,27 @@ function guid() {
         return v.toString(16);
     });
 }
+var urlManager = {
+    getParams: function(){
+        var getPath = location.search,
+            result = {},
+            params, tmpParam;
+
+        if(getPath.length == 0){
+            return result;
+        }
+
+        getPath = getPath.substr(1);
+        params = getPath.split('&');
+
+        for(var i= 0, ii = params.length; i<ii; i++) {
+            tmpParam = params[i].split("=");
+            result[tmpParam[0]] = tmpParam[1];
+        }
+
+        return result;
+    }
+};
 /**
  * @description Работа с ValueProperty @see {@link http://demo.infinnity.ru:8081/display/MC/BaseListElement|BaseListElement}
  */
@@ -1341,10 +1390,13 @@ window.messageTypes = {
     onKeyDown: {name: 'onKeyDown'},
 
     onCreateLayoutPanel: {name: 'onCreateLayoutPanel'},
-    onRemoveLayoutPanel: {name: 'onRemoveLayoutPanel'},
+    onRemoveLayoutPanel: {name: 'onRemoveLayoutPanel'}
+
     //onOpenViewInContainer: {name: 'onOpenViewInContainer'}
 
 };
+
+
 function Subscription(messageType, messageHandler) {
     this.messageType = messageType;
 
@@ -2359,8 +2411,12 @@ var TextEditor = Backbone.View.extend({
                 //TODO: не работает для DateTimeFormat
                 //TODO: доделать SelectionLength замена выделенного текста, по нажатию
 
+                if((event.keyCode >= 96 && event.keyCode <= 105)){
+                    event.keyCode = event.keyCode - 48; //hotfix for numpad keys
+                }
+
                 var inp = String.fromCharCode(event.keyCode);
-                if (/[a-zA-Z0-9-_ ]/.test(inp)) {
+                if (!isNaN(parseFloat(inp)) && isFinite(inp)){
                     if (this.getSelectionLength() > 0 && !(maskEdit.value instanceof Date)) {
                         event.preventDefault();
                         //Data
@@ -2373,6 +2429,7 @@ var TextEditor = Backbone.View.extend({
 
     removeSelection: function(mask, char){
         var res = mask.deleteSelectedText(this.getCaretPosition(), this.getSelectionLength(), char);
+        mask.reset(res.result);
 
         this.ui.editor.val(mask.getText());
 
@@ -4146,7 +4203,7 @@ function Builder() {
         return objectBuilders[metadataType].build(this, parentView, metadataValue, collectionProperty, params);
     };
 
-    this.build = function (parentView, metadataValue, collectionProperty) {
+    this.build = function (parentView, metadataValue, collectionProperty, params) {
         var key,
             value,
             result = null;
@@ -4160,7 +4217,7 @@ function Builder() {
             console.error('Builder: Не переданы метаданные');
         } else {
             value = metadataValue[key];
-            result = this.buildType(parentView, key, value, collectionProperty);
+            result = this.buildType(parentView, key, value, collectionProperty, params);
         }
         return result;
     };
@@ -5701,6 +5758,20 @@ _.extend(AuthenticationProvider.prototype, {
         this.sendPostRequest('/Auth/UnlinkExternalLogin', unlinkExternalLoginForm, resultCallback, errorCallback);
     },
 
+    addClaim: function(userName, claimName, claimValue, resultCallback, errorCallback) {
+        var claim = {
+            "id" : null,
+            "changesObject" : {
+                "UserName" : userName,
+                "ClaimType": claimName,
+                "ClaimValue": claimValue
+            },
+            "replace" : false
+        };
+
+        this.sendPostRequest('/RestfulApi/StandardApi/authorization/addclaim', claim, resultCallback, errorCallback);
+    },
+
     /**
      * Выход пользователя из системы.
      *
@@ -6189,6 +6260,7 @@ _.extend(CheckBoxView.prototype,
     foregroundPropertyMixin,
     textStylePropertyMixin
 );
+
 var ComboBoxControl = function () {
     _.superClass(ComboBoxControl, this);
 };
@@ -6595,8 +6667,8 @@ var ComboBoxView = ControlView.extend({
                 initSelection: this.initSelection.bind(this)
             };
 
-
         var autocomplete = this.model.get('autocomplete');
+
         if(autocomplete !== 'Server'){
             options.data = this.listData;
         }else{
@@ -6613,6 +6685,7 @@ var ComboBoxView = ControlView.extend({
         this.ui.control.select2(options);
 
         this.setEnabled(data.enabled);
+
 
         this.ui.control.on('select2-opening', function(event){
             if (that.model.get('showPopup') !== true) {
@@ -6701,7 +6774,6 @@ var ComboBoxView = ControlView.extend({
 
     setSelectedValue: function () {
         var value = this.model.get('value');
-
         this.ui.control.select2('val', this.buildSelectedFromValue(value));
     },
 
@@ -6752,12 +6824,14 @@ var ComboBoxView = ControlView.extend({
         }
 
         if(this.isOpen){
-            //this.ui.control.select2('close');
-            //this.ui.control.select2('open');
+            if(this.model.get('autocomplete') == 'None') {
+                this.ui.control.select2('close');
+                this.ui.control.select2('open');
+            }
 
             //Триггеринг события, для вызова метода обновления списка значений select2.updateResults
             // т.к. прямой вызов этого метода невозможен в плагине select2
-            this.ui.control.select2('dropdown').find('input.select2-input').trigger('input')
+            this.ui.control.select2('dropdown').find('input.select2-input').trigger('input');
         }
     },
 
@@ -6818,6 +6892,8 @@ var ComboBoxView = ControlView.extend({
     setEnabled: function (value) {
         this.ui.control.select2('enable', value);
         this.ui.btnSelectView.prop('disabled', value !== true);
+
+        if(!value){this.ui.clearValue.hide()}
     },
 
     /**
@@ -6890,7 +6966,7 @@ var ComboBoxView = ControlView.extend({
     },
 
     onMouseenterHandler: function () {
-        if(this.model.get('value') && this.model.get('showClear')){
+        if(this.model.get('value') && this.model.get('showClear') && this.model.get('enabled')){
             this.ui.clearValue.show();
         }
     },
@@ -7170,7 +7246,8 @@ var DataGridColumnModel = Backbone.Model.extend({
         resizable: true,
         visible: true,
         itemFormat: null,
-        sortable: false
+        sortable: false,
+        text: ''
     }
 
 }, {
@@ -7700,7 +7777,6 @@ var DataGridView = ControlView.extend({
 
         this.renderBody();
 
-
         this.postrenderingActions();
         return this;
     },
@@ -7831,7 +7907,6 @@ var DataGridView = ControlView.extend({
                         }
                     });
             });
-
             this.syncColumnWidth($headers, $firstRow);
         }.bind(this), 42);
 
@@ -7933,13 +8008,15 @@ var DataGridView = ControlView.extend({
 
         this.closeAllGroup();
 
-
-
         this.renderTableHeader();
         var that = this;
 
         that.$el.find('.pl-datagrid-body').css('height', 'auto');
         layoutManager.init();
+
+        setTimeout(function(){
+            that.lastScrollPosition(that.lastScrlPos);
+        },1200);
 
         //this.adaptHeaders();
         //setTimeout(function(){
@@ -8194,11 +8271,25 @@ var DataGridView = ControlView.extend({
         this.checkEndOfScroll();
     },
 
+    //TODO: возвращение позиции при автоподгрузке новых элементов
+    lastScrollPosition: function(val){
+        this.lastScrlPos = val;
+
+        var $current = this.$el.find('.pl-datagrid-body'),
+            scrollBottom = $current[0].scrollHeight - ($current.height() + $current.scrollTop());
+
+        //if(!scrollBottom /*&& $current[0].scrollHeight == $current.height()*/){
+            $current.scrollTop(this.lastScrlPos);
+        //}
+    },
+
     checkEndOfScroll: function(){
         if(this.model.get('autoLoad')){
             var $current = this.$el.find('.pl-datagrid-body'),
-                scrollBottom = $current[0].scrollHeight - $current.height() - $current.scrollTop();
-            if(scrollBottom < 10){
+                scrollBottom = $current[0].scrollHeight - ($current.height() + $current.scrollTop());
+
+            if(scrollBottom < 10 && $current[0].scrollHeight !=  $current.height()){
+                this.lastScrollPosition($current.scrollTop()); //Запись последней позиции перед подгрузкой новых элементов
                 this.trigger('scrollToTheEnd', this.model.get('items').length);
             }
         }
@@ -8712,6 +8803,12 @@ _.extend(DataNavigationControl.prototype, {
         this.controlModel.on('change:pageSize', function (model) {
             handler(model.get('pageSize'));
         });
+    },
+
+    onGetElementCount: function(handler){
+        this.controlView.on('onSetElementCount', function(model) {
+            handler(model.get('elementCount'))
+        });
     }
 
 });
@@ -8719,7 +8816,8 @@ var DataNavigationModel = ControlModel.extend({
     defaults: _.defaults({
         pageNumber: 0,
         pageSize: 1,
-        availablePageSizes: [1]
+        availablePageSizes: [1],
+        elementCount: 0
     }, ControlModel.prototype.defaults),
 
     initialize: function(){
@@ -8729,68 +8827,157 @@ var DataNavigationModel = ControlModel.extend({
 var DataNavigationView = ControlView.extend({
     className: 'pl-data-navigation',
 
-    template: _.template(''+
-        '<div class="navigation-bar">' +
-            '<div class="navigation"></div>' +
-        '</div>'),
+    template: _.template('' +
+    '<div class="navigation-bar">' +
+    '<div class="navigation"></div>' +
+    '</div>'),
 
     events: {
         'click .update': 'updateHandler'
-        //TODO: 'click .refresh': 'updateItems'
     },
 
     //TODO: AvailablePageSize [20, 40, 60] (Визуальный элемент, с количеством элементов на странице)
-    //TODO: PageCount - количество страниц (приходит с сервера)
 
-    initialize: function () {
+    initialize: function() {
         ControlView.prototype.initialize.apply(this);
         this.listenTo(this.model, 'change:enabled', this.onChangeEnabledHandler);
-//        this.listenTo(this.model, 'change:pageSize', this.onSetPageSize);
-//        this.listenTo(this.model, 'change:pageNumber', this.onSetPageNumber);
-//        this.listenTo(this.model, 'change:availablePageSizes', this.onAvailablePageSizes)
     },
 
-    render: function () {
+    render: function() {
         this.prerenderingActions();
         this.$el.html(this.template({}));
 
+        var dataSource = this.model.get('view').getDataSource(this.model.get('dataSource'));
         var self = this;
-        this.$el.find('.navigation').bootpag({
-            total: 50,
-            page: this.model.get('pageNumber'),
-            maxVisible: 10,
-            leaps: false,
-            next: 'Вперед ››',
-            prev: '‹‹ Назад'
-        }).on("page", function (event, num) {
-            self.model.set('pageNumber', num-1);
+
+        this.initNumberOfPage(dataSource, function(num) {
+            self.numberOfPage = num;
         });
+
+        //if filter change dataNavigation rerender
+        if (typeof this.onDataSourceItemsUpdated !== 'undefined') {
+            this.onDataSourceItemsUpdated.unsubscribe();
+        }
+
+        this.onDataSourceItemsUpdated = dataSource.onItemsUpdated(function () {
+            self.initNumberOfPage(dataSource, function (num) {
+                self.numberOfPage = num;
+                self.initPlugin();
+            });
+        });
+
+        this.renderAvaliablePageSize();
+
+        this.initPlugin();
 
         this.onChangeEnabledHandler(this.model, this.model.get('enabled'));
         this.postrenderingActions();
         return this;
     },
 
-    onPageSizeHandler: function(){
+    initPlugin: function() {
+        var self = this;
+
+        //reset pageNumber if filter change
+        var maxCountPage = Math.ceil(this.numberOfPage / this.model.get('pageSize'));
+        if (maxCountPage < this.model.get('pageNumber') || (!maxCountPage && !this.model.get('pageNumber') )) {
+            this.model.set('pageNumber', 0);
+        }
+
+        //initialize bootpag plugin
+        this.$el.find('.navigation').bootpag({
+            total: Math.ceil(self.numberOfPage / self.model.get('pageSize')) || 1,
+            page: parseInt(this.model.get('pageNumber')) + 1 || 0,
+            maxVisible: 10,
+            leaps: false,
+            next: 'Вперед ›',
+            prev: '‹ Назад',
+            firstLastUse: true,
+            first: '‹‹',
+            last: '››'
+        }).on("page", function(event, num) {
+            self.model.set('pageNumber', num - 1);
+        });
+
+    },
+
+    renderAvaliablePageSize: function(){
+        var self = this;
+        var select = $('<select class="availablePageSizes" name="hero">');
+        if (this.model.get('availablePageSizes')){
+            for (var i = 0; i < this.model.get('availablePageSizes').length; i++) {
+                select.append('<option value="' + this.model.get('availablePageSizes')[i] + '">' + this.model.get('availablePageSizes')[i]);
+            }
+            this.$el.find('.navigation-bar').append(select);
+            this.$el.find('.availablePageSizes').on('change', function () {
+                self.model.set('pageSize', self.$el.find('.availablePageSizes').val());
+            });
+        }
+    },
+
+    initNumberOfPage: function(dataSource, callback) {
+        var self = this;
+        var queryFilters = dataSource.getQueryFilter().items || [];
+        var propertyFilter = dataSource.getPropertyFilters() || [];
+        var filters = _.union(queryFilters, propertyFilter);
+
+        var param = {
+            "id": null,
+            "changesObject": {
+                "Configuration": dataSource.getConfigId(),
+                "Metadata": dataSource.getDocumentId(),
+                "Filter": filters,
+                "PageNumber": dataSource.getPageNumber(),
+                "PageSize": dataSource.getPageSize()
+            },
+            "replace": false
+        };
+
+        //get count of documents with filters
+        $.ajax(InfinniUI.config.serverUrl + '/RestfulApi/StandardApi/configuration/getnumberofdocuments', {
+            type: 'POST',
+            xhrFields: {
+                withCredentials: true
+            },
+            data: JSON.stringify(param),
+            contentType: 'application/json',
+            success: function(data) {
+                if(data.length) {
+                    self.onSetElementCountHandler(data[0].NumberOfDocuments);
+                    callback(data[0].NumberOfDocuments);
+                }
+            },
+            error: function(error) {
+                alert(error.responseJSON);
+            }
+        });
+    },
+
+    onSetElementCountHandler: function(elementCount){
+        this.trigger('onSetElementCount', this.model.set('elementCount', elementCount));
+    },
+
+    onPageSizeHandler: function() {
         this.trigger('onSetPageSize', this.model.get('pageSize'));
     },
 
-    onPageNumberHandler: function(){
+    onPageNumberHandler: function() {
         this.trigger('onSetPageNumber', this.model.get('pageNumber'));
     },
 
-    onChangeEnabledHandler: function (model, value) {
+    onChangeEnabledHandler: function(model, value) {
         if (!this.wasRendered) return;
 
-        if(value) {
+        if (value) {
             this.$el.find('.bootpag').removeClass('disabled');
-//            this.$el.find('.bootpag').find('a').bind('click', true);
-        }else{
+            //            this.$el.find('.bootpag').find('a').bind('click', true);
+        } else {
             this.$el.find('.bootpag').addClass('disabled');
             this.$el.find('.bootpag.disabled').find('a').bind('click', false);
         }
     }
 });
+
 var DatePickerControl = function(){
     _.superClass(DatePickerControl, this);
 };
@@ -9089,7 +9276,7 @@ var pickersStrategy = {
                 todayHighlight: true
             }).on('show', function(e){
                 var $elem = $('.modal-open > .datepicker');
-                var zIndexStyle = 'z-index:'+self.datePickerZindex()+' !important';
+                var zIndexStyle = 'z-index:'+ self.datePickerZindex() +' !important';
                 if($elem.attr('style').indexOf(zIndexStyle) <= 0) {
                     $elem.attr('style', $elem.attr('style') + zIndexStyle);
                 }
@@ -9199,7 +9386,10 @@ var pickersStrategy = {
                 pickerPosition: "bottom-left"
             }).on('show', function(e){
                 var $elem = $('.modal-open > .datetimepicker');
-                $elem.attr('style', $elem.attr('style') + 'z-index:'+self.datePickerZindex()+' !important');
+                var zIndexStyle = 'z-index:'+self.datePickerZindex()+' !important';
+                if($elem.attr('style').indexOf(zIndexStyle) <= 0) {
+                    $elem.attr('style', $elem.attr('style') + zIndexStyle);
+                }
             });
         },
 
@@ -9587,11 +9777,12 @@ var ExtensionPanelView = ControlView.extend({
     initAndRenderExtensionObject: function () {
         var extensionName = this.model.get('extensionName'),
             context = this.model.getContext(),
-            parameters = this.model.get('parameters');
+            parameters = this.model.get('parameters'),
+            items = this.model.get('items');
 
         this.extensionObject = new window[extensionName]();
         var self = this;
-        var $render = self.extensionObject.render(self.$el, parameters, context);
+        var $render = self.extensionObject.render(self.$el, parameters, context, items);
         if($render){
             self.$el
                 .empty()
@@ -9730,6 +9921,10 @@ var FilterPanelView = ControlView.extend({
 
         this.model.set('value', value);
         this.trigger('onValueChanged', this.model.get('value'));
+
+        this.$el.find('.dropdown').one('hidden.bs.dropdown', function(){
+            $(this).children('button.dropdown-toggle').focus();
+        })
     },
 
     collectFormQuery: function(){
@@ -10090,6 +10285,7 @@ var GridPanelView = AbstractGridPanelView.extend({
         cell: _.template('<div class="pl-grid-cell col-md-<%=colSpan%> col-xs-<%=colSpan%>"></div>')
     }
 });
+
 var ImageBoxControl = function () {
     _.superClass(ImageBoxControl, this);
 };
@@ -10179,7 +10375,8 @@ var ImageBoxView = ControlView.extend({
         var model = this.model;
 
         if(typeof maxSize !== 'undefined' && maxSize > 0 && file.size >= this.model.get('maxSize')){
-            alert('размер выбранного файла больше максимального ' + file.size);
+            toastr.error('Размер выбранного файла ' + (file.size/(1024*1024)).toFixed(1) + 'Мб больше допустимого размера ' + (maxSize/(1024*1024)).toFixed(1) + 'Мб', "Ошибка");
+            this.ui.input.val(null);
             return;
         }
 
@@ -13731,7 +13928,7 @@ var UploadFileBoxView = ControlView.extend({
         var model = this.model;
 
         if(typeof maxSize !== 'undefined' && maxSize !== null && file.size >= maxSize){
-            alert('размер выбранного файла больше максимального ' + file.size);
+            toastr.error('Размер выбранного файла ' + (file.size/(1024*1024)).toFixed(1) + 'Мб больше допустимого размера ' + (maxSize/(1024*1024)).toFixed(1) + 'Мб', "Ошибка");
             this.ui.input.val(null);
             return;
         }
@@ -14488,7 +14685,7 @@ var PropertyBindingBuilder = function () {
 
 };
 
-PropertyBindingBuilder.prototype.build = function (builder, parent, metadata, collectionProperty) {
+PropertyBindingBuilder.prototype.build = function (builder, parent, metadata, collectionProperty, params) {
 
     var metadataProperty = metadata.Property;
 
@@ -14509,8 +14706,16 @@ PropertyBindingBuilder.prototype.build = function (builder, parent, metadata, co
     var dataSource = parent.getDataSource(metadata.DataSource);
 
     if(dataSource !== null){
+        var initingDataStrategy;
 
-        dataSource.addDataBinding(propertyBinding);
+        if(params && params.lazyLoad){
+            initingDataStrategy = {
+                name: 'lazyInitingData',
+                starter: params.lazyLoad
+            };
+        }
+
+        dataSource.addDataBinding(propertyBinding, initingDataStrategy);
 
     }
 
@@ -15352,6 +15557,8 @@ function BaseDataSource(view, idProperty, dataProvider) {
     };
 
     //private
+    var that = this;
+
     var _criteriaConstructor;
     var fillCreatedItem = true;
     var idFilter = null;
@@ -15374,6 +15581,13 @@ function BaseDataSource(view, idProperty, dataProvider) {
     var dataBindings = [];
 
     var suspended = false;
+
+    this.initingDataStrategy = 'manualInitingData';
+    this.lazyInitingDataStarter = $.Deferred();
+
+    this.lazyInitingDataStarter.done(function(){
+        that.resumeUpdate();
+    });
 
     this.isSuspended = function () {
         return suspended;
@@ -15733,22 +15947,42 @@ function BaseDataSource(view, idProperty, dataProvider) {
         }
     };
 
-    this.addDataBinding = function (value) {
-        if (value !== null) {
-            dataBindings.push(value);
+    this.addDataBinding = function (binding, initingDataStrategy) {
+        if (binding !== null) {
+            handleInitingDataStrategy(initingDataStrategy);
 
-            value.onSetPropertyValue(onSetPropertyValueHandler);
+            dataBindings.push(binding);
+
+            binding.onSetPropertyValue(onSetPropertyValueHandler);
 
 
             if (!suspended) {
 
                 //устанавливаем значение элемента
-                currentStrategy.bindItems(value, dataItems, this);
+                currentStrategy.bindItems(binding, dataItems, this);
 
             }
 
         }
     };
+
+    function handleInitingDataStrategy(initingDataStrategy){
+        if(initingDataStrategy && initingDataStrategy.name == 'lazyInitingData' && (that.initingDataStrategy == 'manualInitingData' || that.initingDataStrategy == 'lazyInitingData')){
+            that.initingDataStrategy = 'lazyInitingData';
+            initingDataStrategy.starter.done(function(){
+                that.lazyInitingDataStarter.resolve();
+            });
+        }
+
+        if(!initingDataStrategy){
+            that.initingDataStrategy = 'previouslyInitingData';
+            that.lazyInitingDataStarter.reject();
+
+            if(view.isLoading()){
+                that.resumeUpdate();
+            }
+        }
+    }
 
     this.removeDataBinding = function (value) {
         var itemIndex = dataBindings.indexOf(value);
@@ -15794,8 +16028,6 @@ function BaseDataSource(view, idProperty, dataProvider) {
     this.getDataBindings = function () {
         return dataBindings;
     };
-
-    var that = this;
 
     var onSetPropertyValueHandler = function (context, args) {
         var propertyName = args.property;
@@ -15966,7 +16198,12 @@ function BaseDataSourceBuilder() {
 
         var exchange = parent.getExchange();
         exchange.subscribe(messageTypes.onLoading, function () {
-            dataSource.resumeUpdate();
+            if(dataSource.initingDataStrategy == 'previouslyInitingData' || dataSource.initingDataStrategy == 'manualInitingData'){
+                dataSource.resumeUpdate();
+            }else{
+                dataSource.loadingProcessDone();
+            }
+
         });
         exchange.subscribe(messageTypes.onSetSelectedItem, function (value) {
             if (dataSource.getName() === value.dataSource && !value.property) {
@@ -20676,12 +20913,8 @@ _.extend(DataNavigation.prototype, {
         return this.control.get('view');
     },
 
-    setPageCount: function (pageCount) {
-        return this.control.set('pageCount', pageCount);
-    },
-
-    getPageCount: function () {
-        return this.control.get('pageCount');
+    onGetElementCount: function (handler) {
+        return this.control.onGetElementCount(handler);
     },
 
     onUpdateItems: function (handler) {
@@ -20712,14 +20945,18 @@ _.extend(DataNavigationBuilder.prototype, {
         this.initScriptsHandlers(params);
 
         var element = params.element,
-            metadata = params.metadata;
+            metadata = params.metadata,
+            view = params.parent;
+
+        var datasource = view.getDataSource(metadata.DataSource);
+
 
         element.setDataSource(metadata.DataSource);
         element.setAvailablePageSizes(metadata.AvailablePageSizes);
-        element.setView(params.parent);
+        element.setView(view);
 
-        element.setPageNumber(metadata.PageNumber);
-        element.setPageSize(metadata.PageSize || 10);
+        element.setPageNumber(datasource.getPageNumber() || null);
+        element.setPageSize(datasource.getPageSize() || 10);
 
         //Скриптовые обработчики на события
         //TODO: OnUpdateItems
@@ -20740,17 +20977,17 @@ _.extend(DataNavigationBuilder.prototype, {
             });
         }
 
-        if (params.parent && metadata.OnSetPageNumber){
-            params.element.onSetPageNumber(function() {
-                new ScriptExecutor(params.parent).executeScript(metadata.OnSetPageNumber.Name);
-            });
-        }
-
-        if (params.parent && metadata.OnSetPageSize){
-            params.element.onSetPageSize(function() {
-                new ScriptExecutor(params.parent).executeScript(metadata.OnSetPageSize.Name);
-            });
-        }
+        //if (params.parent && metadata.OnSetPageNumber){
+        //    params.element.onSetPageNumber(function() {
+        //        new ScriptExecutor(params.parent).executeScript(metadata.OnSetPageNumber.Name);
+        //    });
+        //}
+        //
+        //if (params.parent && metadata.OnSetPageSize){
+        //    params.element.onSetPageSize(function() {
+        //        new ScriptExecutor(params.parent).executeScript(metadata.OnSetPageSize.Name);
+        //    });
+        //}
     },
 
     initDataSource: function (params) {
@@ -23450,7 +23687,11 @@ _.extend(ExtensionPanel.prototype, {
 
     setParameters: function (value) {
         return this.control.set('parameters', value);
-    }//,
+    },
+
+    setItems: function(items){
+        this.control.set('items', items);
+    }
 
     //setContext: function (value) {
     //    return this.control.set('context', value);
@@ -23472,6 +23713,7 @@ _.extend(ExtensionPanelBuilder.prototype, {
         params.element.setExtensionName(metadata.ExtensionName);
 
         var parameters = [];
+        var items = [];
         _.each(metadata.Parameters, function (item) {
 
             var itemToBuild = {
@@ -23482,7 +23724,15 @@ _.extend(ExtensionPanelBuilder.prototype, {
             parameters[param.getName()] = param;
         });
 
+        _.each(metadata.Items, function (item) {
+            var itemBuild = params.builder.build(params.parent, item);
+            items.push(itemBuild);
+        });
+
         params.element.setParameters(parameters);
+        params.element.setItems(items);
+
+
         //params.element.setContext(params.parent.getContext());
         params.element.getContext = function () {
             return params.parent.getContext();
@@ -24539,6 +24789,8 @@ function View() {
 
     var culture = new Culture(InfinniUI.config.lang);
 
+    var isLoading = false;
+
     this.onLoadedHandlers = $.Deferred();
 
     this.context = {
@@ -24719,8 +24971,18 @@ function View() {
 
             session: new AuthenticationProvider(InfinniUI.config.serverUrl),
 
-            culture: culture
+            culture: culture,
+
+            urlParams: urlManager.getParams()
         };
+
+        if(document.mobileDeviceId){
+            that.context.Global.mobileDeviceId = document.mobileDeviceId;
+        }else{
+            $(document).on("mobileDeviceId:event", function(){
+                that.context.Global.mobileDeviceId = document.mobileDeviceId;
+            });
+        }
 
         return this.context;
     };
@@ -24820,7 +25082,12 @@ function View() {
     };
 
     this.loading = function () {
+        isLoading = true;
         eventStore.executeEvent('onLoading');
+    };
+
+    this.isLoading = function () {
+        return isLoading;
     };
 
     var childViews = {};
@@ -24906,14 +25173,13 @@ var ViewModel = Backbone.Model.extend({
     }
 });
 
-function ViewBuilder() {
-}
+function ViewBuilder() {}
 
 _.inherit(ViewBuilder, ElementBuilder);
 
 _.extend(ViewBuilder.prototype, {
 
-    applyMetadata: function (params) {
+    applyMetadata: function(params) {
         ElementBuilder.prototype.applyMetadata.call(this, params);
 
         var metadata = params.metadata;
@@ -24934,10 +25200,9 @@ _.extend(ViewBuilder.prototype, {
 
         view.setParentView(parent);
 
-        if(parent.addChildView){
+        if (parent.addChildView) {
             parent.addChildView(metadata.Name, view);
         }
-
 
         this.handleParameters(view, metadata.RequestParameters, params.builder, outerParams, parent);
         this.handleParameters(view, metadata.Parameters, params.builder, outerParams, parent);
@@ -24946,14 +25211,14 @@ _.extend(ViewBuilder.prototype, {
         view.setScripts(metadata.Scripts);
 
         view.onTextChange(this.onChangeTextHandler.bind(this, params));
-        
-        view.onClosed(function () {
-            var removeView = function (view) {
+
+        view.onClosed(function() {
+            var removeView = function(view) {
                 InfinniUI.views.removeView(view);
             };
             _.each(view.getNestedViews(), removeView);
 
-            if(metadata.OnClosed){
+            if (metadata.OnClosed) {
                 new ScriptExecutor(view).executeScript(metadata.OnClosed.Name);
             }
 
@@ -24961,23 +25226,23 @@ _.extend(ViewBuilder.prototype, {
         });
 
         if (metadata.OnClosing) {
-            view.OnClosing(function () {
+            view.OnClosing(function() {
                 new ScriptExecutor(view.getScriptsStorage()).executeScript(metadata.OnClosing.Name);
             });
         }
 
         view.setDataSources(params.builder.buildMany(view, metadata.DataSources));
-        
-        //_.each(metadata.ChildViews, function (childViewMetadata) {
-        //    var linkView = params.builder.build(view, childViewMetadata.LinkView);
-        //    view.addChildView(childViewMetadata.Name, linkView);
-        //});
+
+        _.each(metadata.ChildViews, function(childViewMetadata) {
+            var linkView = params.builder.build(view, childViewMetadata.LinkView);
+            view.addChildView(childViewMetadata.Name, linkView);
+        });
 
 
         view.setLayoutPanel(params.builder.build(view, metadata.LayoutPanel));
     },
 
-    onChangeTextHandler: function (params) {
+    onChangeTextHandler: function(params) {
         var exchange = messageBus.getExchange('global');
 
         exchange.send(messageTypes.onViewTextChange, {
@@ -24986,38 +25251,39 @@ _.extend(ViewBuilder.prototype, {
         });
     },
 
-    handleParameters: function(view, parameters, builder, outerParams, parent){
+    handleParameters: function(view, parameters, builder, outerParams, parent) {
         var name;
 
         if (typeof parameters !== 'undefined' && parameters !== null) {
             for (var i = 0; i < parameters.length; i++) {
-                if(parameters[i].Value === undefined){
+                if (parameters[i].Value === undefined) {
                     name = parameters[i].Name;
 
-                    if(outerParams[name]){
+                    if (outerParams[name]) {
                         view.addParameter(outerParams[name]);
-                    }else{
-                        var emptyParameter = builder.buildType(parent, 'Parameter', {Name:name, Value:null})
+                    } else {
+                        var emptyParameter = builder.buildType(parent, 'Parameter', {
+                            Name: name,
+                            Value: null
+                        })
                     }
 
                 }
 
-
-                if(parameters[i].OnValueChanged){
-                    (function(parameter){
+                if (parameters[i].OnValueChanged) {
+                    (function(parameter) {
                         //debugger;
-                        view.getParameter(parameter.Name).onValueChanged(function(arg1, value){
+                        view.getParameter(parameter.Name).onValueChanged(function(arg1, value) {
                             new ScriptExecutor(view).executeScript(parameter.OnValueChanged.Name, value);
                         });
                     })(parameters[i]);
 
                 }
-
             }
         }
     },
 
-    createElement: function (params) {
+    createElement: function(params) {
         return new View(params.parent);
     }
 
@@ -29205,13 +29471,17 @@ var OpenModeDialogStrategy = function (linkView) {
             .appendTo($('body'));
 
         $elView.find('.pl-stack-panel-i').css('height', 'auto');
+        $modal.on('shown.bs.modal', function (e) {
+            $(e.target).find('.firstfocuselementinmodal').focus();
+        });
         var $container = $modal.find('.modal-body');
 
         $container.append($elView);
         $modal.modal({
             show: true,
             backdrop: 'static',
-            modalOverflow: true
+            modalOverflow: true,
+            focus: this
         });
 
         //FOCUS IN MODAL WITHOUT FALL
@@ -29220,9 +29490,14 @@ var OpenModeDialogStrategy = function (linkView) {
                 $modal.find('.firstfocuselementinmodal').focus();
             });
             $modal.keydown(function(e){
-                if($(this).find('.lastfocuselementinmodal').is(":focus") && (e.which || e.keyCode) == 9){
+                if($(document.activeElement).hasClass('lastfocuselementinmodal') && (e.which || e.keyCode) == 9){
                     e.preventDefault();
-                    $(this).find('.firstfocuselementinmodal').focus();
+                    $modal.find('.firstfocuselementinmodal').focus();
+                }
+
+                if($(document.activeElement).hasClass('firstfocuselementinmodal') && (e.which || e.keyCode) == 9 && e.shiftKey){
+                    e.preventDefault();
+                    $modal.find('.lastfocuselementinmodal').focus();
                 }
             });
         //
@@ -30965,10 +31240,11 @@ function Calendar() {
                     center: 'title',
                     right: ''
                 },
+                fixedWeekCount: false,
                 buttonText: {
                     today: 'Сегодня'
                 },
-                aspectRatio: 2.1,
+                aspectRatio: 2.3,
                 eventClick: function(calEvent, jsEvent, view) {
 
                     var previewCriteria = new Criteria();
@@ -31212,6 +31488,60 @@ function Calendar() {
         });
     }
 }
+
+var MobileMenu = Backbone.View.extend({
+    render: function(target, parameters, context, items){
+        if(this.isRendered()) {
+            $(target).find('.mobile-menu-icon').remove();
+            $("body").find('.modal-mobile').remove();
+        }
+
+        var containerState = true;
+        var $iconContainer = $(target).find('.mobile-menu-icon').length || $("<div class='mobile-menu-icon'><button tabindex='0' class='btn default'><i class='fa fa-bars'></i></button></div>");
+        var $modalContainer = $("<div class='modal-mobile'><div class='modal-mobile-in'></div><div class='modal-mobile-out'></div></div>");
+
+        this.renderModalItems($modalContainer, items);
+        this.addEvents($iconContainer, $modalContainer, containerState);
+        this.appendToHtml(target, $iconContainer, $modalContainer);
+    },
+
+    renderModalItems: function($container, items){
+        var $itemsContainer = $container.find(".modal-mobile-in");
+        _.each(items, function(el){
+            $itemsContainer.append(el.render());
+        })
+    },
+
+    addEvents: function($iconContainer, $modalContainer, containerState){
+        $iconContainer.on('click', function(e){
+            e.preventDefault();
+
+            if(containerState){
+                $modalContainer.show();
+            }else{
+                $modalContainer.hide();
+            }
+
+            $(this).toggleClass('active');
+            containerState = !containerState;
+        });
+
+        $modalContainer.children('.modal-mobile-out').on('click', function(e){
+            $modalContainer.hide();
+            containerState = true;
+        });
+    },
+
+    appendToHtml: function(target, $iconContainer, $modalContainer){
+        $(target).append($iconContainer);
+        $("body").append($modalContainer.hide());
+    },
+
+    isRendered: function(){
+        return !!$('.modal-mobile').length;
+    }
+});
+
 
 /*!
  * FullCalendar v2.3.1

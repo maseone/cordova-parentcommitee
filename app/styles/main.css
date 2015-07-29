@@ -6301,14 +6301,26 @@ span:hover {
   font-size: 112px;
   text-transform: none;
 }
+.pl-numeric-box.horizontalTextAlignment-Right .pl-spin-control .pl-spin-input {
+  text-align: right;
+}
 .pl-numeric-box.horizontalTextAlignment-Right .pl-spin-control .input-group .pl-spin-input {
   text-align: right;
+}
+.pl-numeric-box.horizontalTextAlignment-Center .pl-spin-control .pl-spin-input {
+  text-align: center;
 }
 .pl-numeric-box.horizontalTextAlignment-Center .pl-spin-control .input-group .pl-spin-input {
   text-align: center;
 }
+.pl-numeric-box.horizontalTextAlignment-Left .pl-spin-control .pl-spin-input {
+  text-align: left;
+}
 .pl-numeric-box.horizontalTextAlignment-Left .pl-spin-control .input-group .pl-spin-input {
   text-align: left;
+}
+.pl-numeric-box.horizontalTextAlignment-Justify .pl-spin-control .pl-spin-input {
+  text-align: justify;
 }
 .pl-numeric-box.horizontalTextAlignment-Justify .pl-spin-control .input-group .pl-spin-input {
   text-align: justify;
@@ -7970,8 +7982,13 @@ span:hover {
 .pl-filter-panel form .pl-filter-buttons .dropdown {
   float: left;
 }
+.pl-filter-panel form .pl-filter-buttons .btn_search:focus,
+.pl-filter-panel form .pl-filter-buttons .dropdown:focus {
+  border: 1px solid #999999;
+  outline: none;
+}
 .pl-filter-panel form .pl-filter-buttons .btn_search {
-  width: 102px;
+  width: 100px;
   height: 30px;
   border: none;
   margin-right: 2px;
@@ -9191,18 +9208,37 @@ label {
   background-color: #46b1bd;
   color: #ffffff;
 }
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active a,
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active span {
+  background-color: #46b1bd;
+  border-color: #dddddd;
+  color: #ffffff;
+}
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active a:hover,
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active span:hover,
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active a:focus,
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active span:focus,
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active a:active,
+.pl-data-navigation .navigation-bar > .navigation > .pagination .active span:active {
+  background-color: #46b1bd;
+  border-color: #dddddd;
+}
 .pl-data-navigation .navigation-bar > .navigation > .pagination > li > a {
   color: #000000;
 }
-.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled.prev > a {
-  color: #d8d4d6;
-}
-.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled.next > a {
-  color: #d8d4d6;
-}
-.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled:not(.prev):not(.next) > a {
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled:not(.prev) > a,
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled:not(.first) > a,
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled:not(.last) > a,
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled:not(.next) > a {
   background-color: #46b1bd;
   color: #ffffff;
+}
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled.prev > a,
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled.next > a,
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled.first > a,
+.pl-data-navigation .navigation-bar > .navigation > .pagination > li.disabled.last > a {
+  color: #d8d4d6;
+  background-color: #ffffff;
 }
 .pl-data-navigation .bootpag.disabled li a {
   background-color: #EEE;
@@ -10085,6 +10121,61 @@ a.fc-more:hover {
     font-size: 15px !important;
   }
 }
+.modal-mobile {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 51px;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 9999999;
+}
+.modal-mobile > .modal-mobile-in {
+  width: 60%;
+  height: 100%;
+  background-color: #fff;
+  float: left;
+  padding: 5px;
+}
+.modal-mobile > .modal-mobile-out {
+  width: 40%;
+  height: 100%;
+  float: left;
+}
+.mobile-menu-icon > button {
+  height: 51px;
+}
+.mobile-menu-icon > button.btn.default,
+.mobile-menu-icon > button .btn-default {
+  background-color: #444d58;
+}
+.mobile-menu-icon > button.btn.default > i,
+.mobile-menu-icon > button .btn-default > i {
+  color: #BCC2CB;
+  font-size: 20px !important;
+}
+.mobile-menu-icon.active > button.btn.default > i,
+.mobile-menu-icon.active > button .btn-default > i {
+  color: #fff;
+}
+.menu-user-info {
+  background-color: #2ec6b9;
+  padding: 5px;
+  margin: -5px;
+  margin-bottom: 0;
+}
+.menu-user-info .label-control {
+  color: #ffffff;
+}
+.menu-command-panel button i {
+  font-size: 20px !important;
+}
+.menu-command-panel button span {
+  font-size: 20px !important;
+}
+.menu-command-panel .pl-button {
+  padding: 15px 0;
+}
 body {
   background: #fff;
 }
@@ -10185,6 +10276,15 @@ h3 {
 .summary-data-panel .second-level {
   padding-left: 15px;
 }
+.summary-data-panel .font-size-20px {
+  font-size: 20px !important;
+}
+.summary-data-panel .font-size-20px button {
+  font-size: 20px !important;
+}
+.summary-data-panel .font-size-20px button span {
+  font-size: 20px !important;
+}
 .pta-image-box div {
   width: 100% !important;
   height: 100% !important;
@@ -10279,6 +10379,14 @@ h3 {
 }
 .h1 label {
   font-size: 20px !important;
+}
+.h2 {
+  font-size: 15px;
+  text-align: center;
+  color: #26a69a;
+}
+.h2 label {
+  font-size: 15px !important;
 }
 .big-image .pl-thumbnail {
   width: 80px !important;
@@ -10522,8 +10630,103 @@ h3 {
 .full-width-button button {
   width: 100%;
 }
+.auto-width {
+  width: auto !important;
+}
 .without-all-margin {
   margin: 0px;
+}
+.without-all-padding {
+  padding: 0px !important;
+}
+.with-padding-left {
+  padding-left: 5px;
+}
+.input-width-for-font-14px .pl-spin-input {
+  width: 55px;
+}
+.input-width-for-font-14px .pl-control-editor {
+  width: 55px;
+  margin-left: 18px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+.input-width-for-font-20px .pl-spin-input {
+  width: 75px;
+}
+.input-width-for-font-20px .pl-control-editor {
+  width: 75px;
+  margin-left: 18px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+.text-align-center-numericbox .pl-spin-input {
+  text-align: center;
+}
+.text-align-center-numericbox .pl-control-editor {
+  text-align: center;
+}
+.close {
+  opacity: 1 !important;
+}
+.stack-panel-last-child-right .pl-stack-panel-i:last-child {
+  float: right;
+}
+
+.modal-mobile {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 51px;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 9999999;
+}
+.modal-mobile > .modal-mobile-in {
+  width: 60%;
+  height: 100%;
+  background-color: #fff;
+  float: left;
+  padding: 5px;
+}
+.modal-mobile > .modal-mobile-out {
+  width: 40%;
+  height: 100%;
+  float: left;
+}
+.mobile-menu-icon > button {
+  height: 51px;
+}
+.mobile-menu-icon > button.btn.default,
+.mobile-menu-icon > button .btn-default {
+  background-color: #444d58;
+}
+.mobile-menu-icon > button.btn.default > i,
+.mobile-menu-icon > button .btn-default > i {
+  color: #BCC2CB;
+  font-size: 20px !important;
+}
+.mobile-menu-icon.active > button.btn.default > i,
+.mobile-menu-icon.active > button .btn-default > i {
+  color: #fff;
+}
+.menu-user-info {
+  background-color: #2ec6b9;
+  padding: 5px;
+  margin: -5px;
+  margin-bottom: 0;
+}
+.menu-user-info .label-control {
+  color: #ffffff;
+}
+.menu-command-panel button i {
+  font-size: 20px !important;
+}
+.menu-command-panel button span {
+  font-size: 20px !important;
+}
+.menu-command-panel .pl-button {
+  padding: 15px 0;
 }
 
 .general-font-size {
@@ -10601,13 +10804,38 @@ h3 {
     font-size: 15px !important;
   }
 }
-.view-calendar i::before {
-  margin-right: 5px;
-  font-size: 15px !important;
+.view-calendar {
+  /* Поскольку наши элементы должны тесно использоваться с fullCalendar, то для каждого из них отдельно отпределим позицию.
+	   Искусствено поднимаем календарь вверх: для всех элементов в стеке, кроме календаря (он дб последний в списке), высота 0.*/
+  /* Style for creation buttons */
+}
+.view-calendar > li:not(:last-child) {
+  height: 0;
+}
+.view-calendar .fc-toolbar {
+  margin-left: 125px;
+  margin-right: 200px;
 }
 @media (max-width: 1366px), (max-height: 768px) {
-  .view-calendar i::before {
-    font-size: 13px !important;
+  .view-calendar .fc-toolbar {
+    margin-left: 105px;
+  }
+}
+.view-calendar .fc-today-button {
+  font-size: 20px !important;
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .fc-today-button {
+    font-size: 15px !important;
+  }
+}
+.view-calendar .fc-button-group .fc-button {
+  padding: 7px;
+  height: auto;
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .fc-button-group .fc-button {
+    padding: 1px 2px;
   }
 }
 .view-calendar .fc-event {
@@ -10618,87 +10846,168 @@ h3 {
     font-size: 13px !important;
   }
 }
-.view-calendar .pl-stack-panel {
-  /* После кнопки Создать нужен отступ, чтобы чекбоксы были на одном уровне с календарем. */
-}
-.view-calendar .pl-stack-panel label,
-.view-calendar .pl-stack-panel span {
-  font-size: 20px !important;
-}
-@media (max-width: 1366px), (max-height: 768px) {
-  .view-calendar .pl-stack-panel label,
-  .view-calendar .pl-stack-panel span {
-    font-size: 15px !important;
-  }
-}
-.view-calendar .pl-stack-panel li:nth-child(1) {
-  margin-bottom: 1em;
-}
-.view-calendar .fc-today-button {
-  font-size: 20px !important;
-  padding-top: 0px !important;
-  padding-bottom: 0px !important;
-}
-@media (max-width: 1366px), (max-height: 768px) {
-  .view-calendar .fc-today-button {
-    font-size: 15px !important;
-  }
-}
-@media (max-width: 1366px), (max-height: 768px) {
-  .view-calendar .fc-today-button {
-    padding-top: 1px !important;
-    padding-bottom: 2px !important;
-  }
-}
-.view-calendar .fc-button-group .fc-button {
-  padding-top: 7px;
-  background-color: white;
+.view-calendar .fc-event i::before {
   font-size: 15px !important;
 }
 @media (max-width: 1366px), (max-height: 768px) {
-  .view-calendar .fc-button-group .fc-button {
+  .view-calendar .fc-event i::before {
     font-size: 13px !important;
   }
 }
-.view-calendar .fc-center h2 {
+.view-calendar .big-button .btn {
+  font-size: 20px !important;
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .big-button .btn {
+    font-size: 15px !important;
+  }
+}
+.view-calendar .big-button .dropdown-toggle {
+  font-size: 20px !important;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .big-button .dropdown-toggle {
+    font-size: 15px !important;
+  }
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .big-button .dropdown-toggle {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+}
+.view-calendar .right-panel {
+  float: right;
+  margin-right: 25px;
+}
+.view-calendar .big-border {
+  border-width: 2px;
+}
+.view-calendar .event-checkbox .pl-control-text,
+.view-calendar .event-checkbox .pl-check-box-control {
+  display: none !important;
+}
+.view-calendar .event-checkbox .checker {
+  margin: 10px;
+}
+.view-calendar .event-checkbox .checker span {
+  background-image: none;
+  /* Если указывать auto, то отображаться будет также, но чек-бокс не срабатывает */
+}
+.view-calendar .event-checkbox .checker span input {
+  width: 40px;
+  height: 40px;
+}
+.view-calendar .event-checkbox .checker span:before {
+  content: "\f073";
+  font-family: FontAwesome;
   font-size: 28px !important;
 }
 @media (max-width: 1366px), (max-height: 768px) {
-  .view-calendar .fc-center h2 {
+  .view-calendar .event-checkbox .checker span:before {
     font-size: 23px !important;
   }
 }
-.view-calendar .pl-check-box {
-  width: 100% !important;
-  text-align: left;
-  white-space: nowrap !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.view-calendar .event-checkbox .checker span.checked {
+  color: #f1c40f;
 }
-.view-calendar .pl-grid-cell {
-  padding-left: 3px;
-  padding-right: 0px;
+.view-calendar .event-checkbox .checker span:not(.checked) {
+  color: #777777;
 }
-.view-calendar .row {
-  margin-right: 0;
+.view-calendar .task-checkbox .pl-control-text,
+.view-calendar .task-checkbox .pl-check-box-control {
+  display: none !important;
 }
-.view-calendar .col-md-11 {
-  padding-right: 0;
+.view-calendar .task-checkbox .checker {
+  margin: 10px;
 }
-.view-calendar .fc-button {
-  border-width: 0;
-  padding: 3px 8px;
-  outline: none !important;
-  background-image: none !important;
-  filter: none;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  text-shadow: none;
-  height: inherit;
+.view-calendar .task-checkbox .checker span {
+  background-image: none;
+  /* Если указывать auto, то отображаться будет также, но чек-бокс не срабатывает */
 }
-.big-border {
-  border-width: 2px;
+.view-calendar .task-checkbox .checker span input {
+  width: 40px;
+  height: 40px;
+}
+.view-calendar .task-checkbox .checker span:before {
+  content: "\f0c9";
+  font-family: FontAwesome;
+  font-size: 28px !important;
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .task-checkbox .checker span:before {
+    font-size: 23px !important;
+  }
+}
+.view-calendar .task-checkbox .checker span.checked {
+  color: #e74c3c;
+}
+.view-calendar .task-checkbox .checker span:not(.checked) {
+  color: #777777;
+}
+.view-calendar .payment-checkbox .pl-control-text,
+.view-calendar .payment-checkbox .pl-check-box-control {
+  display: none !important;
+}
+.view-calendar .payment-checkbox .checker {
+  margin: 10px;
+}
+.view-calendar .payment-checkbox .checker span {
+  background-image: none;
+  /* Если указывать auto, то отображаться будет также, но чек-бокс не срабатывает */
+}
+.view-calendar .payment-checkbox .checker span input {
+  width: 40px;
+  height: 40px;
+}
+.view-calendar .payment-checkbox .checker span:before {
+  content: "\f158";
+  font-family: FontAwesome;
+  font-size: 28px !important;
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .payment-checkbox .checker span:before {
+    font-size: 23px !important;
+  }
+}
+.view-calendar .payment-checkbox .checker span.checked {
+  color: #2ecc71;
+}
+.view-calendar .payment-checkbox .checker span:not(.checked) {
+  color: #777777;
+}
+.view-calendar .purchase-checkbox .pl-control-text,
+.view-calendar .purchase-checkbox .pl-check-box-control {
+  display: none !important;
+}
+.view-calendar .purchase-checkbox .checker {
+  margin: 10px;
+}
+.view-calendar .purchase-checkbox .checker span {
+  background-image: none;
+  /* Если указывать auto, то отображаться будет также, но чек-бокс не срабатывает */
+}
+.view-calendar .purchase-checkbox .checker span input {
+  width: 40px;
+  height: 40px;
+}
+.view-calendar .purchase-checkbox .checker span:before {
+  content: "\f07a";
+  font-family: FontAwesome;
+  font-size: 28px !important;
+}
+@media (max-width: 1366px), (max-height: 768px) {
+  .view-calendar .purchase-checkbox .checker span:before {
+    font-size: 23px !important;
+  }
+}
+.view-calendar .purchase-checkbox .checker span.checked {
+  color: #00a5b8;
+}
+.view-calendar .purchase-checkbox .checker span:not(.checked) {
+  color: #777777;
 }
 
 .general-font-size {
@@ -10786,6 +11095,10 @@ h3 {
 }
 .payment-preview .fix-height {
   height: 400px;
+}
+.payment-preview .participants {
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .general-font-size {
@@ -11027,6 +11340,9 @@ h3 {
 .fund .right-align li {
   float: right !important;
 }
+.fund .right-align {
+  float: right !important;
+}
 .fund .summary-info > li {
   /* на небольших экранах переносим на новую строку каждый пункт */
 }
@@ -11084,6 +11400,10 @@ h3 {
 }
 .fund .purchases .pl-grid-cell:last-child > *:not(.head) {
   padding-right: 10px !important;
+}
+.excel-button i {
+  font-size: 22px;
+  margin-top: 4px;
 }
 
 .general-font-size {
@@ -11148,34 +11468,34 @@ h3 {
 .main-menu .btn-group {
   margin-right: 0 !important;
 }
-.main-menu .pl-button button,
+.main-menu .pl-tool-bar .pl-button button,
 .main-menu .pl-popup-button button {
   height: 51px;
   background: #444d58;
 }
-.main-menu .pl-button button:hover,
+.main-menu .pl-tool-bar .pl-button button:hover,
 .main-menu .pl-popup-button button:hover,
-.main-menu .pl-button button:focus,
+.main-menu .pl-tool-bar .pl-button button:focus,
 .main-menu .pl-popup-button button:focus {
   background: #55616f !important;
 }
-.main-menu .pl-button button:hover .btntext,
+.main-menu .pl-tool-bar .pl-button button:hover .btntext,
 .main-menu .pl-popup-button button:hover .btntext,
-.main-menu .pl-button button:focus .btntext,
+.main-menu .pl-tool-bar .pl-button button:focus .btntext,
 .main-menu .pl-popup-button button:focus .btntext {
   color: #ffffff;
 }
-.main-menu .pl-button button .btntext,
+.main-menu .pl-tool-bar .pl-button button .btntext,
 .main-menu .pl-popup-button button .btntext,
-.main-menu .pl-button button .pl-popup-btn-toggle,
+.main-menu .pl-tool-bar .pl-button button .pl-popup-btn-toggle,
 .main-menu .pl-popup-button button .pl-popup-btn-toggle {
   color: #BCC2CB;
   font-size: 20px !important;
 }
 @media (max-width: 1366px), (max-height: 768px) {
-  .main-menu .pl-button button .btntext,
+  .main-menu .pl-tool-bar .pl-button button .btntext,
   .main-menu .pl-popup-button button .btntext,
-  .main-menu .pl-button button .pl-popup-btn-toggle,
+  .main-menu .pl-tool-bar .pl-button button .pl-popup-btn-toggle,
   .main-menu .pl-popup-button button .pl-popup-btn-toggle {
     font-size: 15px !important;
   }
@@ -11200,11 +11520,21 @@ h3 {
 .right-popup .dropdown-menu {
   left: calc(100% - 175px);
 }
+.help-button button {
+  height: 51px  !important;
+  background: #444d58 !important;
+}
 .help-button:hover i {
   color: #fff !important;
 }
 .help-button-mobile i {
   font-size: 28px !important;
+}
+.text-align-left {
+  text-align: left !important;
+}
+.text-align-left button {
+  text-align: left !important;
 }
 
 .general-font-size {
@@ -11522,9 +11852,6 @@ h3 {
 .personal-cabinet .events button {
   padding: 0;
 }
-.personal-cabinet .events i {
-  margin-right: 10px !important;
-}
 .personal-cabinet .voting .horizontal .listbox-body div {
   width: auto !important;
 }
@@ -11558,18 +11885,46 @@ h3 {
   text-overflow: ellipsis;
   text-align: left;
 }
-.task-list .event-child span,
-.task-list .event-child label {
+.task-list li:last-child {
+  max-width: 20% ;
+}
+.task-list li:last-child span,
+.task-list li:last-child label {
   color: #777777 !important;
   border-bottom-color: #777777 !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap !important;
 }
-.task-list .event-child span:before {
+.task-list li:last-child span:before {
   content: "(";
 }
-.task-list .event-child span:after {
+.task-list li:last-child span:after {
+  content: ")";
+}
+.task-list-mobile li {
+  max-width: 100% ;
+}
+.task-list-mobile li * {
+  width: 100% ;
+}
+.task-list-mobile li button {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+.task-list-mobile .event-child span,
+.task-list-mobile .event-child label {
+  color: #777777 !important;
+  border-bottom-color: #777777 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
+}
+.task-list-mobile .event-child span:before {
+  content: "(";
+}
+.task-list-mobile .event-child span:after {
   content: ")";
 }
 
@@ -11631,14 +11986,36 @@ h3 {
 .aligned-three-unit-list li:first-child {
   width: 40% !important;
 }
+.aligned-three-unit-list-with-icons li {
+  width: 15% !important;
+}
+.aligned-three-unit-list-with-icons li:first-child {
+  width: 3% !important;
+}
+.aligned-three-unit-list-with-icons li:nth-child(2) {
+  width: 40% !important;
+}
+.aligned-three-unit-list-with-icons button {
+  padding: 0px !important;
+}
+.aligned-three-unit-list-with-icons .btn > i {
+  font-size: 10px;
+}
+.aligned-three-unit-list-with-icons li label {
+  padding-top: 5px;
+}
 .margin-top {
   margin-top: 20px;
 }
 .list-with-collapsed-items .collapsed-item {
   display: none;
+  margin-left: 20px;
 }
 .list-with-collapsed-items .selected .collapsed-item {
   display: block;
+}
+.list-with-collapsed-items li label {
+  padding-top: 5px;
 }
 /* Стили конкретных представлений */
 .sum-report-parameter label,
@@ -11728,8 +12105,15 @@ h3 {
 .voting-list .flat-panel .pl-listbox > .listbox-body > div {
   border-bottom: none;
 }
-.voting-list .voting-title .title-child {
-  width: 80% !important;
+.voting-list .voting-title li:last-child {
+  max-width: 90% !important;
+  /* Иконка примерно не больше 10% */
+}
+.voting-list .voting-title li:last-child a {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .voting-preview i,
 .voting-preview label,
@@ -11749,7 +12133,6 @@ h3 {
   padding-top: 0;
 }
 .voting-preview .participants {
-  margin-top: 15px;
-  max-height: 500px;
+  max-height: 50vh;
   overflow-y: auto;
 }

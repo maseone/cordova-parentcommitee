@@ -1,28 +1,10 @@
-# cordova-parentcommitee
-Mobile client for parentcommitee
+# Cordova Push Notification Demo with Internet of Things Simulation UI
 
-## Steps to install cordova-parentcommitee:
-* install [node.js]
-* in Command Prompt 
-```sh
-npm i cordova -g
-cordova build android
-```
-* clone repo in 
-```sh
- folderyouproject/platforms/android/assets/www/  
-```
 
-## Steps to start android App
-* install [JDK]
-* install [Android Studio with SDK]
-* open project in ***Android Studio***
-* create ***new Virtual Device*** or connect smartphone
-* press ***Run*** button
+A showcase demo and a quick tutorial of [PhoneGap][pg] and [PubNub][pubnub] data stream network JavaScript API, using a simulated IoT web user-interface to give you some use case ideas.
 
-##### [Tutorial] with images
 
-[node.js]:http://nodejs.org
-[JDK]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
-[Android Studio with SDK]: https://developer.android.com/sdk/index.html
-[tutorial]: https://cordova.apache.org/docs/en/2.9.0/guide_getting-started_android_index.md.html
+
+[pg]: http://phonegap.com
+[pubnub]: http://www.pubnub.com/docs/javascript/javascript-sdk.html
+

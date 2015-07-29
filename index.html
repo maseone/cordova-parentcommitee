@@ -10,11 +10,14 @@
 
     <link href="out/css/vendor.css" rel="stylesheet" type="text/css"/>
     <link href="app/styles/main.css" rel="stylesheet" type="text/css"/>
-    <link rel="icon" type="image/png" href="launcher/favicon.ico" />
+    <link rel="icon" type="image/png" href="out/images/favicon.ico" />
 </head>
 <body class="page-header-fixed" id="page-content">
 
     <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/jquery_1.5.2.min.js"></script>
+    <script type="text/javascript" src="js/PushNotification.js"></script>
+    <script src="js/notification.js"></script>
 
     <script src="launcher/launcherConfig.js"></script>
     <script src="app/utils/pdf/build/pdf.js"></script>
@@ -22,105 +25,50 @@
     <script src="out/templates.js"></script>
     <script src="out/app.js"></script>
     <script src="launcher/app.js"></script>
-    <script src="app/utils/exel-builder/excel-builder.dist.js"></script>
+    <script src="/app/utils/exel-builder/excel-builder.dist.js"></script>
 
     <script type="application/javascript">
+        jQuery(function () {
+        //    $(document).on('contextmenu', function() {
+        //        return false;
+        //    });
 
-    document.addEventListener("deviceready", onDeviceReady, false);
-    var param = {
-        "id": null,
-        "changesObject": {
-            "Configuration": "PTA",
-            "Metadata": "Parent",
-            "Filter": [],
-            "PageNumber": 0,
-            "PageSize": 99
-        },
-        "replace": false
-    };
-    var lastdata = null;
+        //    Metronic.init();
+        //    Layout.init();
 
-    function onDeviceReady(){
-        setInterval(function(){
-            $.ajax('http://10.222.222.68:9900/RestfulApi/StandardApi/configuration/GetDocument', {
-                type: 'POST',
-                data: JSON.stringify(param),
-                contentType: 'application/json',
-                success: function(data) {
-                    var newUser = null;
-
-                    if(lastdata){
-                        if(data.length > lastdata.length){
-                            var bIds = {}
-                            lastdata.forEach(function(obj){
-                                bIds[obj.Id] = obj;
-                            });
-
-                            newUser = data.filter(function(obj){
-                                return !(obj.Id in bIds);
-                            });
-                        }
-                    }
-
-                    lastdata = data;
-
-                    if(newUser){
-                        cordova.plugins.notification.local.schedule({
-                            id: 1,
-                            text: 'К нам присоединился: '+newUser[0].LastName,
-                            icon: 'http://cdn2.iconfinder.com/data/icons/ios-7-icons/50/user_male2-64.png',
-                            sound: null
-                        });
-                    }
-                },
-                error: function(error) {
-                    cordova.plugins.notification.local.schedule({
-                        id: 1,
-                        text: 'Error 1',
-                        icon: 'http://www.optimizeordie.de/wp-content/plugins/social-media-widget/images/default/64/googleplus.png',
-                        sound: null
-                    });
+            var resize;
+            $(window).resize(function () {
+                if (resize) {
+                    clearTimeout(resize);
                 }
+                resize = setTimeout(function () {
+                    _runResizeHandlers();
+                }, 50); // wait 50ms until window resize finishes.
             });
-        },10000)
-    };
 
-
-    jQuery(function () {
-        var resize;
-        $(window).resize(function () {
-            if (resize) {
-                clearTimeout(resize);
+            function _runResizeHandlers() {
+                resizeContent();
             }
-            resize = setTimeout(function () {
-                _runResizeHandlers();
-            }, 50); // wait 50ms until window resize finishes.
-        });
 
-        function _runResizeHandlers() {
+            function getViewPort() {
+                var e = window, a = 'inner';
+                if (!('innerWidth' in window)) {
+                    a = 'client';
+                    e = document.documentElement || document.body;
+                }
+                return {
+                    width: e[a + 'Width'],
+                    height: e[a + 'Height']
+                }
+            }
+
+            function resizeContent () {
+                var height = getViewPort().height - (46 + 51); //46px высота толбаров
+                $("#page-content").css('height', height + 'px');
+            }
+
             resizeContent();
-        }
-
-        function getViewPort() {
-            var e = window, a = 'inner';
-            if (!('innerWidth' in window)) {
-                a = 'client';
-                e = document.documentElement || document.body;
-            }
-            return {
-                width: e[a + 'Width'],
-                height: e[a + 'Height']
-            }
-        }
-
-        function resizeContent () {
-            var height = getViewPort().height - (46 + 51); //46px высота толбаров
-            $("#page-content").css('height', height + 'px');
-        }
-
-        resizeContent();
-    });
-
+        });
     </script>
 
 </body>

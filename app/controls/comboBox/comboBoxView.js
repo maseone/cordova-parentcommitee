@@ -76,8 +76,8 @@ var ComboBoxView = ControlView.extend({
                 initSelection: this.initSelection.bind(this)
             };
 
-
         var autocomplete = this.model.get('autocomplete');
+
         if(autocomplete !== 'Server'){
             options.data = this.listData;
         }else{
@@ -94,6 +94,7 @@ var ComboBoxView = ControlView.extend({
         this.ui.control.select2(options);
 
         this.setEnabled(data.enabled);
+
 
         this.ui.control.on('select2-opening', function(event){
             if (that.model.get('showPopup') !== true) {
@@ -182,7 +183,6 @@ var ComboBoxView = ControlView.extend({
 
     setSelectedValue: function () {
         var value = this.model.get('value');
-
         this.ui.control.select2('val', this.buildSelectedFromValue(value));
     },
 
@@ -233,12 +233,14 @@ var ComboBoxView = ControlView.extend({
         }
 
         if(this.isOpen){
-            //this.ui.control.select2('close');
-            //this.ui.control.select2('open');
+            if(this.model.get('autocomplete') == 'None') {
+                this.ui.control.select2('close');
+                this.ui.control.select2('open');
+            }
 
             //Триггеринг события, для вызова метода обновления списка значений select2.updateResults
             // т.к. прямой вызов этого метода невозможен в плагине select2
-            this.ui.control.select2('dropdown').find('input.select2-input').trigger('input')
+            this.ui.control.select2('dropdown').find('input.select2-input').trigger('input');
         }
     },
 
@@ -299,6 +301,8 @@ var ComboBoxView = ControlView.extend({
     setEnabled: function (value) {
         this.ui.control.select2('enable', value);
         this.ui.btnSelectView.prop('disabled', value !== true);
+
+        if(!value){this.ui.clearValue.hide()}
     },
 
     /**
@@ -371,7 +375,7 @@ var ComboBoxView = ControlView.extend({
     },
 
     onMouseenterHandler: function () {
-        if(this.model.get('value') && this.model.get('showClear')){
+        if(this.model.get('value') && this.model.get('showClear') && this.model.get('enabled')){
             this.ui.clearValue.show();
         }
     },

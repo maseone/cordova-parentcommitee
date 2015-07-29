@@ -3,6 +3,8 @@ function View() {
 
     var culture = new Culture(InfinniUI.config.lang);
 
+    var isLoading = false;
+
     this.onLoadedHandlers = $.Deferred();
 
     this.context = {
@@ -183,9 +185,10 @@ function View() {
 
             session: new AuthenticationProvider(InfinniUI.config.serverUrl),
 
-            culture: culture
-        };
+            culture: culture,
 
+            urlParams: urlManager.getParams()
+        };
         return this.context;
     };
 
@@ -284,7 +287,12 @@ function View() {
     };
 
     this.loading = function () {
+        isLoading = true;
         eventStore.executeEvent('onLoading');
+    };
+
+    this.isLoading = function () {
+        return isLoading;
     };
 
     var childViews = {};
