@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+
+    <link href="out/css/vendor.css" rel="stylesheet" type="text/css"/>
+    <link href="app/styles/main.css" rel="stylesheet" type="text/css"/>
+    <link rel="icon" type="image/png" href="out/images/favicon.ico" />
+</head>
+<body class="page-header-fixed" id="page-content">
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/PushNotification.js"></script>
+    <script type="text/javascript" src="js/notification.js"></script>
+
+    <script src="launcher/launcherConfig.js"></script>
+    <script src="app/utils/pdf/build/pdf.js"></script>
+    <script src="out/vendor.js"></script>
+    <script src="out/templates.js"></script>
+    <script src="out/app.js"></script>
+    <script src="launcher/app.js"></script>
+    <script src="/app/utils/exel-builder/excel-builder.dist.js"></script>
+
+    <script type="application/javascript">
+        jQuery(function () {
+        //    $(document).on('contextmenu', function() {
+        //        return false;
+        //    });
+
+        //    Metronic.init();
+        //    Layout.init();
+
+            var resize;
+            $(window).resize(function () {
+                if (resize) {
+                    clearTimeout(resize);
+                }
+                resize = setTimeout(function () {
+                    _runResizeHandlers();
+                }, 50); // wait 50ms until window resize finishes.
+            });
+
+            function _runResizeHandlers() {
+                resizeContent();
+            }
+
+            function getViewPort() {
+                var e = window, a = 'inner';
+                if (!('innerWidth' in window)) {
+                    a = 'client';
+                    e = document.documentElement || document.body;
+                }
+                return {
+                    width: e[a + 'Width'],
+                    height: e[a + 'Height']
+                }
+            }
+
+            function resizeContent () {
+                var height = getViewPort().height - (46 + 51); //46px высота толбаров
+                $("#page-content").css('height', height + 'px');
+            }
+
+            resizeContent();
+        });
+    </script>
+
+</body>
+</html>
