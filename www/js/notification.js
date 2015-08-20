@@ -2,8 +2,18 @@ var pushNotification;
 document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
+            //fix iOS 7+ StatusBar
+    if(device.platform == 'iOS'){
+        StatusBar.overlaysWebView(false);
+        StatusBar.styleBlackTranslucent();
+    }
+
     try {
         pushNotification = window.plugins.pushNotification;
+        document.mobilePlatform = {
+            name: device.platform,
+            id: null
+        };
         if (device.platform == 'android' || device.platform == 'Android' || device.platform == 'amazon-fireos') {
             pushNotification.register(successHandler, errorHandler, {
                 "senderID": "139274623388",
@@ -34,6 +44,9 @@ function errorHandler(error) {
 
 function tokenHandler(result) {
     console.log('token: ' + result);
+
+    document.mobilePlatform.id = result;
+    $(document).trigger('mobileDeviceId:event');
     // Your iOS push server needs to know the token before it can push to this device
     // here is where you might want to send it the token for later use.
 }
@@ -43,7 +56,7 @@ function onNotificationGCM(e) {
     switch (e.event) {
         case 'registered':
             if (e.regid.length > 0) {
-                document.mobileDeviceId = e.regid;
+                document.mobilePlatform.id = e.regid;
                 $(document).trigger('mobileDeviceId:event');
             }
             break;

@@ -30,7 +30,7 @@ InfinniUI.config.maxLengthUrl = 2048;
 InfinniUI.config.cacheMetadata = false; //boolean - enable/disable cache | milliseconds
 InfinniUI.config.serverUrl = 'http://xn--80abnlydpf.xn--80asehdb:9002';
 InfinniUI.config.configId = 'PTA_mobile';
-InfinniUI.config.configName = 'Родительский коммитет';
+InfinniUI.config.configName = 'Родительский комитет';
 /**
  * Набор утилит для работы с BlobData объектами
  **/
@@ -25034,11 +25034,11 @@ function View() {
             urlParams: urlManager.getParams()
         };
 
-        if(document.mobileDeviceId){
-            that.context.Global.mobileDeviceId = document.mobileDeviceId;
+        if(document.mobilePlatform){
+            that.context.Global.mobile = document.mobilePlatform;
         }else{
             $(document).on("mobileDeviceId:event", function(){
-                that.context.Global.mobileDeviceId = document.mobileDeviceId;
+                that.context.Global.mobile = document.mobilePlatform;
             });
         }
 
