@@ -23,7 +23,11 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <plugin name="cordova-plugin-whitelist" spec="1" />
-    <plugin name="org.apache.cordova.device" spec="~0.3" />
     <plugin name="org.apache.cordova.media" spec="~0.2" />
+    <plugin name="org.apache.cordova.device" spec="~0.3" />
     <plugin name="com.phonegap.plugins.PushPlugin" spec="https://github.com/phonegap-build/PushPlugin.git" />
+    <plugin name="org.apache.cordova.statusbar" spec="~0.1.10" />
+    <preference name="StatusBarOverlaysWebView" value="true" />
+    <preference name="StatusBarBackgroundColor" value="#000000" />
+    <preference name="StatusBarStyle" value="lightcontent" />
 </widget>
